@@ -30,7 +30,7 @@ struct ContentView: View {
             } else if let session = activeSessions.first {
                 GameBoardView(session: session)
             } else {
-                StartView()
+                StartView(onReturnToMenu: { showSplash = true })
             }
         }
         .tint(MahjongTheme.tableFelt)

@@ -6,6 +6,7 @@ final class GameSession {
     var id: UUID = UUID()
     var createdAt: Date = Date()
     var isActive: Bool = true
+    var isPendingGameOver: Bool = false
     var introCompleted: Bool = false
 
     // Configuration (set at game start)
@@ -22,6 +23,7 @@ final class GameSession {
     // JSON-encoded data blobs
     var playersJSON: Data = Data()
     var historyJSON: Data = Data()
+    var profileIDsJSON: Data = Data()
 
     // MARK: - Computed properties
 
@@ -40,6 +42,11 @@ final class GameSession {
         set { historyJSON = (try? JSONEncoder().encode(newValue)) ?? Data() }
     }
 
+    var profileIDs: [UUID?] {
+        get { (try? JSONDecoder().decode([UUID?].self, from: profileIDsJSON)) ?? [] }
+        set { profileIDsJSON = (try? JSONEncoder().encode(newValue)) ?? Data() }
+    }
+
     func seatWind(for playerIndex: Int) -> Wind {
         let offset = (playerIndex - dealerSeatIndex + 4) % 4
         return Wind(rawValue: offset) ?? .east
@@ -51,7 +58,7 @@ final class GameSession {
 
     // MARK: - Init
 
-    init(playerNames: [String], playerEmojis: [String] = [], playerColors: [String] = [], startingPoints: Int, multiplier: Int, minFan: Int) {
+    init(playerNames: [String], playerEmojis: [String] = [], playerColors: [String] = [], profileIDs: [UUID?] = [], startingPoints: Int, multiplier: Int, minFan: Int) {
         self.startingPoints = startingPoints
         self.multiplier = multiplier
         self.minFan = minFan
@@ -64,6 +71,7 @@ final class GameSession {
             )
         }
         self.history = []
+        self.profileIDs = profileIDs
     }
 
     // MARK: - Game Actions
@@ -101,7 +109,7 @@ final class GameSession {
             if dealerRotationCount >= 4 {
                 dealerRotationCount = 0
                 if prevailingWind == .north {
-                    isActive = false
+                    isPendingGameOver = true
                 } else {
                     prevailingWind = prevailingWind.next
                 }

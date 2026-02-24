@@ -68,7 +68,7 @@ struct ProfilePickerSheet: View {
 
 // MARK: - Profile Card
 
-private struct ProfileCard: View {
+struct ProfileCard: View {
     let profile: UserProfile
     let isUsed: Bool
 
@@ -96,7 +96,7 @@ private struct ProfileCard: View {
 
 // MARK: - Add Profile Card
 
-private struct AddProfileCard: View {
+struct AddProfileCard: View {
     var onTap: () -> Void
 
     var body: some View {
@@ -125,7 +125,7 @@ private struct AddProfileCard: View {
 
 // MARK: - Add Profile Form
 
-private struct AddProfileView: View {
+struct AddProfileView: View {
     var onCreate: (String, String, String) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -174,7 +174,7 @@ private struct AddProfileView: View {
 
 // MARK: - Edit Profile Form
 
-private struct EditProfileView: View {
+struct EditProfileView: View {
     @Bindable var profile: UserProfile
     @Environment(\.dismiss) private var dismiss
 

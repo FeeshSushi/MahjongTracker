@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct StartView: View {
+    var onReturnToMenu: () -> Void
     @Environment(\.modelContext) private var context
 
     @State private var playerNames = ["Player 1", "Player 2", "Player 3", "Player 4"]
@@ -56,6 +57,13 @@ struct StartView: View {
             }
             .navigationTitle("New Game")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        onReturnToMenu()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showSettings = true
@@ -95,11 +103,28 @@ struct StartView: View {
         }
     }
 
+    private static let defaultPalette = ["#E74C3C", "#3498DB", "#2ECC71", "#F39C12"]
+
     private func startGame() {
+        let usedColors = Set(
+            selectedProfileIDs.enumerated()
+                .filter { $0.element != nil }
+                .map { playerColors[$0.offset].lowercased() }
+        )
+        var available = Self.defaultPalette.filter { !usedColors.contains($0.lowercased()) }
+
+        var resolvedColors = playerColors
+        for i in 0..<4 where selectedProfileIDs[i] == nil {
+            resolvedColors[i] = available.isEmpty
+                ? Self.defaultPalette[i % Self.defaultPalette.count]
+                : available.removeFirst()
+        }
+
         let session = GameSession(
             playerNames: playerNames,
             playerEmojis: playerEmojis,
-            playerColors: playerColors,
+            playerColors: resolvedColors,
+            profileIDs: selectedProfileIDs,
             startingPoints: startingPoints,
             multiplier: multiplier,
             minFan: minFan

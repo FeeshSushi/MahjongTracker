@@ -15,6 +15,8 @@ struct GameBoardView: View {
     @State private var showHistory = false
     @State private var showHandRef = false
     @State private var showEndGameAlert = false
+    @State private var showGameOverCard = false
+    @State private var gameOverIsAuto = false
 
     // Help tip
     @State private var showHelpTip = false
@@ -25,6 +27,10 @@ struct GameBoardView: View {
     @State private var introPhase: IntroPhase = .playing
     @State private var displayOrder: [Int] = [0, 1, 2, 3]  // visual slot → player index
     @State private var highlightedSlot: Int? = nil
+
+    // Splash text overlay
+    @State private var splashText: String? = nil
+    @State private var splashTask: Task<Void, Never>? = nil
 
     private let sideWidth: CGFloat = 96
     private let edgeHeight: CGFloat = 112
@@ -77,10 +83,49 @@ struct GameBoardView: View {
                 dealerHighlight(slot: 3, w: w, h: h, centerH: centerH)
 
                 // Center box — square, rotates to face the dealer
-                centerBox
-                    .frame(width: boxSize, height: boxSize)
-                    .rotationEffect(.degrees(introPhase == .playing ? dealerRotation : 0))
-                    .position(x: w / 2, y: h / 2)
+                if introPhase == .playing {
+                    centerBox
+                        .frame(width: boxSize, height: boxSize)
+                        .rotationEffect(.degrees(dealerRotation))
+                        .position(x: w / 2, y: h / 2)
+                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                }
+
+                // Game Over overlay
+                if showGameOverCard {
+                    GameOverCard(session: session, isAutoEnd: gameOverIsAuto) {
+                        let profileIDs = session.profileIDs
+                        let ranked = session.players.enumerated()
+                            .map { (index: $0.offset, player: $0.element) }
+                            .sorted { $0.player.points > $1.player.points }
+                        for (place, entry) in ranked.enumerated() {
+                            guard entry.index < profileIDs.count,
+                                  let profileID = profileIDs[entry.index] else { continue }
+                            let descriptor = FetchDescriptor<UserProfile>(
+                                predicate: #Predicate { $0.id == profileID }
+                            )
+                            if let profile = try? context.fetch(descriptor).first {
+                                let result = GameResult(finalPoints: entry.player.points, placement: place + 1)
+                                var results = profile.gameResults
+                                results.append(result)
+                                profile.gameResults = results
+                            }
+                        }
+                        session.isActive = false
+                        session.isPendingGameOver = false
+                    }
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                    .zIndex(20)
+                }
+
+                // Splash text overlay
+                if let text = splashText {
+                    SplashLabel(text: text)
+                        .frame(maxWidth: w * 0.85)
+                        .position(x: w / 2, y: h / 2)
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                        .zIndex(15)
+                }
 
                 // Help tooltip — fixed above the bottom tile
                 if showHelpTip {
@@ -125,11 +170,22 @@ struct GameBoardView: View {
         }
         .alert("End Game?", isPresented: $showEndGameAlert) {
             Button("End Game", role: .destructive) {
-                session.isActive = false
+                gameOverIsAuto = false
+                withAnimation { showGameOverCard = true }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will end the current game. All scores are saved in history.")
+        }
+        .onChange(of: session.isPendingGameOver) { _, pending in
+            if pending {
+                gameOverIsAuto = true
+                withAnimation { showGameOverCard = true }
+            }
+        }
+        .onChange(of: session.roundLabel) { _, _ in
+            guard introPhase == .playing, !session.isPendingGameOver else { return }
+            showSplash("\(session.prevailingWind.label) Round \(session.dealerRotationCount + 1)")
         }
     }
 
@@ -138,6 +194,7 @@ struct GameBoardView: View {
     @MainActor
     private func runIntro(w: CGFloat, h: CGFloat) async {
         // --- Phase 1: Shuffle (≈3 s) ---
+        showSplash("Shuffling Players", autoDismissAfter: nil)
         let finalOrder = (0..<4).shuffled()
 
         var delays: [Double] = []
@@ -167,6 +224,7 @@ struct GameBoardView: View {
         displayOrder = [0, 1, 2, 3]
 
         // --- Phase 2: Dealer spin (≈3 s) ---
+        showSplash("Selecting the Dealer", autoDismissAfter: nil)
         introPhase = .dealerSpin
         let finalDealer = Int.random(in: 0..<4)
 
@@ -191,6 +249,7 @@ struct GameBoardView: View {
         // Complete intro
         session.introCompleted = true
         withAnimation { introPhase = .playing; highlightedSlot = nil }
+        clearSplash()
 
         // Show help tip after intro (first time only)
         if !hasSeenHelpTip {
@@ -199,6 +258,25 @@ struct GameBoardView: View {
             try? await Task.sleep(for: .seconds(3.5))
             withAnimation { showHelpTip = false }
         }
+    }
+
+    // MARK: - Splash helpers
+
+    private func showSplash(_ text: String, autoDismissAfter seconds: Double? = 2.5) {
+        splashTask?.cancel()
+        withAnimation(.easeOut(duration: 0.25)) { splashText = text }
+        guard let seconds else { return }
+        splashTask = Task {
+            try? await Task.sleep(for: .seconds(seconds))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeIn(duration: 0.25)) { splashText = nil }
+        }
+    }
+
+    private func clearSplash() {
+        splashTask?.cancel()
+        splashTask = nil
+        withAnimation(.easeIn(duration: 0.25)) { splashText = nil }
     }
 
     // MARK: - Dealer highlight per slot
@@ -213,13 +291,13 @@ struct GameBoardView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(glow, lineWidth: 3)
                         .shadow(color: glow.opacity(0.7), radius: 10)
-                        .frame(width: w - 16, height: edgeHeight - 10)
+                        .frame(width: w, height: edgeHeight - 10)
                         .position(x: w / 2, y: h - edgeHeight / 2)
                 case 1: // right
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(glow, lineWidth: 3)
                         .shadow(color: glow.opacity(0.7), radius: 10)
-                        .frame(width: centerH - 16, height: sideWidth - 5)
+                        .frame(width: centerH, height: sideWidth - 5)
                         .rotationEffect(.degrees(-90))
                         .frame(width: sideWidth, height: centerH)
                         .position(x: w - sideWidth / 2, y: h / 2)
@@ -227,14 +305,14 @@ struct GameBoardView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(glow, lineWidth: 3)
                         .shadow(color: glow.opacity(0.7), radius: 10)
-                        .frame(width: w - 16, height: edgeHeight - 10)
+                        .frame(width: w, height: edgeHeight - 10)
                         .rotationEffect(.degrees(180))
                         .position(x: w / 2, y: edgeHeight / 2)
                 case 3: // left
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(glow, lineWidth: 3)
                         .shadow(color: glow.opacity(0.7), radius: 10)
-                        .frame(width: centerH - 16, height: sideWidth - 5)
+                        .frame(width: centerH, height: sideWidth - 5)
                         .rotationEffect(.degrees(90))
                         .frame(width: sideWidth, height: centerH)
                         .position(x: sideWidth / 2, y: h / 2)
@@ -255,7 +333,7 @@ struct GameBoardView: View {
             PlayerTileView(
                 player: session.players[playerIndex],
                 seatWind: session.seatWind(for: playerIndex),
-                isDealer: session.dealerSeatIndex == playerIndex,
+                isDealer: introPhase == .playing && session.dealerSeatIndex == playerIndex,
                 onTap: { if introPhase == .playing { scoringForPlayer = playerIndex } }
             )
         }
@@ -266,106 +344,74 @@ struct GameBoardView: View {
     @ViewBuilder
     private var centerBox: some View {
         VStack(spacing: 10) {
-            // Phase-specific top content
-            switch introPhase {
-            case .shuffling:
-                VStack(spacing: 6) {
-                    Image(systemName: "shuffle")
-                        .font(.title2)
-                        .foregroundColor(MahjongTheme.primaryText)
-                    Text("Shuffling Players...")
-                        .font(.headline)
-                        .foregroundColor(MahjongTheme.primaryText)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-
-            case .dealerSpin:
-                VStack(spacing: 6) {
-                    Image(systemName: "arrow.clockwise.circle")
-                        .font(.title2)
-                        .foregroundColor(MahjongTheme.primaryText)
-                    Text("Selecting the Dealer...")
-                        .font(.headline)
-                        .foregroundColor(MahjongTheme.primaryText)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-
-            case .playing:
-                VStack(spacing: 3) {
-                    Text(session.prevailingWind.character)
-                        .font(.system(size: 40, weight: .bold))
-                        .foregroundColor(MahjongTheme.primaryText)
-                    Text("\(session.prevailingWind.label) Round \(session.dealerRotationCount + 1)")
-                        .font(.caption)
-                        .foregroundColor(MahjongTheme.secondaryText)
-                    if session.honba > 0 {
-                        Text("本 \(session.honba)")
-                            .font(.caption.bold())
-                            .foregroundColor(.orange)
-                    }
+            VStack(spacing: 3) {
+                Text(session.prevailingWind.character)
+                    .font(.system(size: 40, weight: .bold))
+                    .foregroundColor(MahjongTheme.primaryText)
+                Text("\(session.prevailingWind.label) Round \(session.dealerRotationCount + 1)")
+                    .font(.caption)
+                    .foregroundColor(MahjongTheme.secondaryText)
+                if session.honba > 0 {
+                    Text("本 \(session.honba)")
+                        .font(.caption.bold())
+                        .foregroundColor(.orange)
                 }
             }
 
-            if introPhase == .playing {
-                Rectangle()
-                    .fill(Color.white.opacity(0.12))
-                    .frame(height: 1)
+            Rectangle()
+                .fill(Color.white.opacity(0.12))
+                .frame(height: 1)
 
+            Button {
+                showHandRef = true
+            } label: {
+                Label("Hand Reference", systemImage: "book.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(MahjongTheme.tableFelt)
+
+            Menu {
+                Button("End Game", role: .destructive) {
+                    showEndGameAlert = true
+                }
+                Divider()
                 Button {
-                    showHandRef = true
+                    showHistory = true
                 } label: {
-                    Label("Hand Reference", systemImage: "book.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
+                    Label("Score History", systemImage: "clock")
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(MahjongTheme.tableFelt)
-
-                Menu {
-                    Button("End Game", role: .destructive) {
-                        showEndGameAlert = true
-                    }
-                    Divider()
-                    Button {
-                        showHistory = true
-                    } label: {
-                        Label("Score History", systemImage: "clock")
-                    }
-                    Button {
-                        showManualAdjust = true
-                    } label: {
-                        Label("Manual Adjust", systemImage: "plusminus.circle")
-                    }
+                Button {
+                    showManualAdjust = true
                 } label: {
-                    Label("More", systemImage: "ellipsis.circle")
-                        .font(.subheadline)
-                        .frame(maxWidth: .infinity)
+                    Label("Manual Adjust", systemImage: "plusminus.circle")
                 }
-                .buttonStyle(.bordered)
-                .tint(.white)
+            } label: {
+                Label("More", systemImage: "ellipsis.circle")
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.bordered)
+            .tint(.white)
         }
         .padding(12)
         .background(MahjongTheme.centerCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(alignment: .topTrailing) {
-            if introPhase == .playing {
-                Button {
-                    withAnimation { showHelpTip = true }
-                    Task {
-                        try? await Task.sleep(for: .seconds(3.5))
-                        withAnimation { showHelpTip = false }
-                    }
-                } label: {
-                    Image(systemName: "questionmark.circle")
-                        .font(.caption)
-                        .foregroundColor(MahjongTheme.secondaryText)
+            Button {
+                withAnimation { showHelpTip = true }
+                Task {
+                    try? await Task.sleep(for: .seconds(3.5))
+                    withAnimation { showHelpTip = false }
                 }
-                .buttonStyle(.plain)
-                .padding(8)
+            } label: {
+                Image(systemName: "questionmark.circle")
+                    .font(.caption)
+                    .foregroundColor(MahjongTheme.secondaryText)
             }
+            .buttonStyle(.plain)
+            .padding(8)
         }
         .overlay(
             RoundedRectangle(cornerRadius: 14)
@@ -405,6 +451,35 @@ private struct TooltipCaret: Shape {
             p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
             p.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
             p.closeSubpath()
+        }
+    }
+}
+
+// MARK: - Splash Label
+
+private struct SplashLabel: View {
+    let text: String
+    private let strokeWidth: CGFloat = 3
+
+    private var strokeOffsets: [(CGFloat, CGFloat)] {
+        let w = strokeWidth
+        return [(-w,-w),(0,-w),(w,-w),(-w,0),(w,0),(-w,w),(0,w),(w,w)]
+    }
+
+    var body: some View {
+        ZStack {
+            ForEach(strokeOffsets.indices, id: \.self) { i in
+                let (x, y) = strokeOffsets[i]
+                Text(text)
+                    .font(.system(size: 52, weight: .black))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.black)
+                    .offset(x: x, y: y)
+            }
+            Text(text)
+                .font(.system(size: 52, weight: .black))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.white)
         }
     }
 }

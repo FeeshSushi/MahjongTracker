@@ -61,26 +61,18 @@ struct ScoringSheetView: View {
                 }
 
                 Section("Winner") {
-                    Picker("Winner", selection: $winnerIndex) {
-                        ForEach(session.players.indices, id: \.self) { i in
-                            let p = session.players[i]
-                            Text(p.emoji.isEmpty ? p.name : "\(p.emoji) \(p.name)").tag(i)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+                    PlayerSegmentedPicker(players: session.players, selection: $winnerIndex)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
                 }
 
                 if winType == .dealIn {
                     Section("Discarder") {
-                        Picker("Discarder", selection: $discarderIndex) {
-                            ForEach(session.players.indices, id: \.self) { i in
-                                if i != winnerIndex {
-                                    Text("\(session.players[i].name)  \(session.seatWind(for: i).character)")
-                                        .tag(i)
-                                }
-                            }
-                        }
+                        PlayerSegmentedPicker(
+                            players: session.players,
+                            selection: $discarderIndex,
+                            excludeIndex: winnerIndex
+                        )
+                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
                     }
                 }
 
@@ -175,5 +167,47 @@ struct ScoringSheetView: View {
             )
         )
         session.applyScore(deltas: d, entry: entry, dealerWon: dealerWon)
+    }
+}
+
+// MARK: - Player Segmented Picker
+
+struct PlayerSegmentedPicker: View {
+    let players: [PlayerState]
+    @Binding var selection: Int
+    var excludeIndex: Int? = nil
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(players.indices, id: \.self) { i in
+                if i != excludeIndex {
+                    let player = players[i]
+                    let color = player.colorHex.isEmpty ? Color.blue : Color(hex: player.colorHex)
+                    let isSelected = selection == i
+
+                    Button {
+                        selection = i
+                    } label: {
+                        VStack(spacing: 1) {
+                            if !player.emoji.isEmpty {
+                                Text(player.emoji).font(.caption)
+                            }
+                            Text(player.name)
+                                .font(.caption.weight(isSelected ? .semibold : .regular))
+                                .lineLimit(1)
+                        }
+                        .foregroundColor(isSelected ? .white : color)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(isSelected ? color : color.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(3)
+        .background(Color(.systemFill))
+        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 }
