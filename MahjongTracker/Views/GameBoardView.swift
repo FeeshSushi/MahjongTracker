@@ -32,8 +32,8 @@ struct GameBoardView: View {
     @State private var splashText: String? = nil
     @State private var splashTask: Task<Void, Never>? = nil
 
-    private let sideWidth: CGFloat = 96
-    private let edgeHeight: CGFloat = 112
+    private let sideWidth: CGFloat = MahjongTheme.Layout.sideWidth
+    private let edgeHeight: CGFloat = MahjongTheme.Layout.edgeHeight
 
     var dealerRotation: Double {
         -Double(session.dealerSeatIndex) * 90.0
@@ -132,7 +132,7 @@ struct GameBoardView: View {
                     HelpTooltip {
                         withAnimation { showHelpTip = false }
                     }
-                    .frame(maxWidth: 240)
+                    .frame(maxWidth: MahjongTheme.Layout.tooltipMaxWidth)
                     .position(x: w / 2, y: h - edgeHeight - 60)
                     .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .bottom)))
                     .zIndex(10)
@@ -148,7 +148,7 @@ struct GameBoardView: View {
                 if !hasSeenHelpTip && session.introCompleted {
                     hasSeenHelpTip = true
                     withAnimation { showHelpTip = true }
-                    try? await Task.sleep(for: .seconds(3.5))
+                    try? await Task.sleep(for: .seconds(MahjongTheme.Timing.helpAutoDismiss))
                     withAnimation { showHelpTip = false }
                 }
             }
@@ -236,7 +236,7 @@ struct GameBoardView: View {
             let slot = step % 4
             let progress = Double(step) / Double(max(totalSteps - 1, 1))
             let delay = 0.05 + progress * progress * 0.45
-            withAnimation(.easeInOut(duration: 0.1)) { highlightedSlot = slot }
+            withAnimation(.easeInOut(duration: MahjongTheme.Timing.spinStep)) { highlightedSlot = slot }
             try? await Task.sleep(for: .seconds(delay))
         }
 
@@ -244,7 +244,7 @@ struct GameBoardView: View {
             highlightedSlot = finalDealer
             session.dealerSeatIndex = finalDealer
         }
-        try? await Task.sleep(for: .seconds(0.9))
+        try? await Task.sleep(for: .seconds(MahjongTheme.Timing.selectionPause))
 
         // Complete intro
         session.introCompleted = true
@@ -264,12 +264,12 @@ struct GameBoardView: View {
 
     private func showSplash(_ text: String, autoDismissAfter seconds: Double? = 2.5) {
         splashTask?.cancel()
-        withAnimation(.easeOut(duration: 0.25)) { splashText = text }
+        withAnimation(.easeOut(duration: MahjongTheme.Timing.splashFade)) { splashText = text }
         guard let seconds else { return }
         splashTask = Task {
             try? await Task.sleep(for: .seconds(seconds))
             guard !Task.isCancelled else { return }
-            withAnimation(.easeIn(duration: 0.25)) { splashText = nil }
+            withAnimation(.easeIn(duration: MahjongTheme.Timing.splashFade)) { splashText = nil }
         }
     }
 
@@ -288,30 +288,30 @@ struct GameBoardView: View {
             Group {
                 switch slot {
                 case 0: // bottom
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(glow, lineWidth: 3)
-                        .shadow(color: glow.opacity(0.7), radius: 10)
+                    RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile)
+                        .stroke(glow, lineWidth: MahjongTheme.Layout.dealerStrokeWidth)
+                        .shadow(color: glow.opacity(MahjongTheme.Opacity.dealerGlow), radius: MahjongTheme.Layout.dealerGlowRadius)
                         .frame(width: w, height: edgeHeight - 10)
                         .position(x: w / 2, y: h - edgeHeight / 2)
                 case 1: // right
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(glow, lineWidth: 3)
-                        .shadow(color: glow.opacity(0.7), radius: 10)
+                    RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile)
+                        .stroke(glow, lineWidth: MahjongTheme.Layout.dealerStrokeWidth)
+                        .shadow(color: glow.opacity(MahjongTheme.Opacity.dealerGlow), radius: MahjongTheme.Layout.dealerGlowRadius)
                         .frame(width: centerH, height: sideWidth - 5)
                         .rotationEffect(.degrees(-90))
                         .frame(width: sideWidth, height: centerH)
                         .position(x: w - sideWidth / 2, y: h / 2)
                 case 2: // top
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(glow, lineWidth: 3)
-                        .shadow(color: glow.opacity(0.7), radius: 10)
+                    RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile)
+                        .stroke(glow, lineWidth: MahjongTheme.Layout.dealerStrokeWidth)
+                        .shadow(color: glow.opacity(MahjongTheme.Opacity.dealerGlow), radius: MahjongTheme.Layout.dealerGlowRadius)
                         .frame(width: w, height: edgeHeight - 10)
                         .rotationEffect(.degrees(180))
                         .position(x: w / 2, y: edgeHeight / 2)
                 case 3: // left
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(glow, lineWidth: 3)
-                        .shadow(color: glow.opacity(0.7), radius: 10)
+                    RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile)
+                        .stroke(glow, lineWidth: MahjongTheme.Layout.dealerStrokeWidth)
+                        .shadow(color: glow.opacity(MahjongTheme.Opacity.dealerGlow), radius: MahjongTheme.Layout.dealerGlowRadius)
                         .frame(width: centerH, height: sideWidth - 5)
                         .rotationEffect(.degrees(90))
                         .frame(width: sideWidth, height: centerH)
@@ -346,7 +346,7 @@ struct GameBoardView: View {
         VStack(spacing: 10) {
             VStack(spacing: 3) {
                 Text(session.prevailingWind.character)
-                    .font(.system(size: 40, weight: .bold))
+                    .font(MahjongTheme.Font.windCharacter)
                     .foregroundColor(MahjongTheme.primaryText)
                 Text("\(session.prevailingWind.label) Round \(session.dealerRotationCount + 1)")
                     .font(.caption)
@@ -397,12 +397,12 @@ struct GameBoardView: View {
         }
         .padding(12)
         .background(MahjongTheme.centerCardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.centerBox))
         .overlay(alignment: .topTrailing) {
             Button {
                 withAnimation { showHelpTip = true }
                 Task {
-                    try? await Task.sleep(for: .seconds(3.5))
+                    try? await Task.sleep(for: .seconds(MahjongTheme.Timing.helpAutoDismiss))
                     withAnimation { showHelpTip = false }
                 }
             } label: {
@@ -414,8 +414,8 @@ struct GameBoardView: View {
             .padding(8)
         }
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.white.opacity(0.10), lineWidth: 1)
+            RoundedRectangle(cornerRadius: MahjongTheme.Radius.centerBox)
+                .stroke(Color.white.opacity(MahjongTheme.Opacity.overlayStroke), lineWidth: 1)
         )
     }
 }
@@ -471,7 +471,7 @@ private struct SplashLabel: View {
             ForEach(strokeOffsets.indices, id: \.self) { i in
                 let (x, y) = strokeOffsets[i]
                 Text(text)
-                    .font(.system(size: 52, weight: .black))
+                    .font(MahjongTheme.Font.splashHero)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.black)
                     .offset(x: x, y: y)

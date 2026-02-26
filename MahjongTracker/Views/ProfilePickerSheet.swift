@@ -18,39 +18,46 @@ struct ProfilePickerSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(profiles) { profile in
-                        let isUsed = usedProfileIDs.contains(profile.id)
-                        ProfileCard(profile: profile, isUsed: isUsed)
-                            .onTapGesture {
-                                guard !isUsed else { return }
-                                onSelect(profile)
-                                dismiss()
-                            }
-                            .contextMenu {
-                                Button("Edit") {
-                                    editingProfile = profile
+            ZStack {
+                MahjongTheme.panelDark.ignoresSafeArea()
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: MahjongTheme.Layout.gridSpacing) {
+                        ForEach(profiles) { profile in
+                            let isUsed = usedProfileIDs.contains(profile.id)
+                            ProfileCard(profile: profile, isUsed: isUsed)
+                                .onTapGesture {
+                                    guard !isUsed else { return }
+                                    onSelect(profile)
+                                    dismiss()
                                 }
-                                Button("Delete", role: .destructive) {
-                                    context.delete(profile)
+                                .contextMenu {
+                                    Button("Edit") {
+                                        editingProfile = profile
+                                    }
+                                    Button("Delete", role: .destructive) {
+                                        context.delete(profile)
+                                    }
                                 }
-                            }
+                        }
+                        AddProfileCard {
+                            showingAddForm = true
+                        }
                     }
-                    AddProfileCard {
-                        showingAddForm = true
-                    }
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle(slotLabel)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.panelDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(MahjongTheme.primaryText)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Clear") { onClear(); dismiss() }
+                        .foregroundStyle(MahjongTheme.primaryText)
                 }
             }
             .sheet(isPresented: $showingAddForm) {
@@ -80,17 +87,18 @@ struct ProfileCard: View {
                 .font(.largeTitle)
             Text(profile.name)
                 .font(.caption.bold())
+                .foregroundColor(MahjongTheme.primaryText)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(MahjongTheme.tileBackground)
+        .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.profileCard))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(profileColor, lineWidth: 2.5)
+            RoundedRectangle(cornerRadius: MahjongTheme.Radius.profileCard)
+                .strokeBorder(profileColor, lineWidth: MahjongTheme.Layout.profileBorderWidth)
         )
-        .opacity(isUsed ? 0.35 : 1)
+        .opacity(isUsed ? MahjongTheme.Opacity.profileDimmed : 1)
     }
 }
 
@@ -104,19 +112,19 @@ struct AddProfileCard: View {
             VStack(spacing: 6) {
                 Image(systemName: "plus")
                     .font(.title2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MahjongTheme.secondaryText)
                 Text("New")
                     .font(.caption.bold())
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MahjongTheme.secondaryText)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .background(MahjongTheme.tileBackground)
+            .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.profileCard))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [5]))
-                    .foregroundColor(.secondary.opacity(0.4))
+                RoundedRectangle(cornerRadius: MahjongTheme.Radius.profileCard)
+                    .strokeBorder(style: StrokeStyle(lineWidth: MahjongTheme.Layout.tileBorderWidth, dash: MahjongTheme.Layout.addCardDash))
+                    .foregroundColor(MahjongTheme.secondaryText.opacity(MahjongTheme.Opacity.dashBorder))
             )
         }
         .buttonStyle(.plain)
@@ -140,23 +148,34 @@ struct AddProfileView: View {
                     TextField("e.g. 🐯", text: $emoji)
                         .font(.largeTitle)
                         .multilineTextAlignment(.center)
+                        .foregroundColor(MahjongTheme.primaryText)
                         .onChange(of: emoji) { _, new in
                             let trimmed = String(new.prefix(1))
                             if emoji != trimmed { emoji = trimmed }
                         }
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
                 Section("Name") {
                     TextField("Username", text: $name)
+                        .foregroundColor(MahjongTheme.primaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
                 Section("Color") {
                     ColorPicker("Profile Color", selection: $selectedColor, supportsOpacity: false)
+                        .foregroundColor(MahjongTheme.primaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(MahjongTheme.panelDark)
             .navigationTitle("New Profile")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.panelDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(MahjongTheme.primaryText)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -164,6 +183,7 @@ struct AddProfileView: View {
                         dismiss()
                     }
                     .fontWeight(.semibold)
+                    .foregroundStyle(MahjongTheme.primaryText)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
@@ -189,23 +209,34 @@ struct EditProfileView: View {
                     TextField("e.g. 🐯", text: $emoji)
                         .font(.largeTitle)
                         .multilineTextAlignment(.center)
+                        .foregroundColor(MahjongTheme.primaryText)
                         .onChange(of: emoji) { _, new in
                             let trimmed = String(new.prefix(1))
                             if emoji != trimmed { emoji = trimmed }
                         }
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
                 Section("Name") {
                     TextField("Username", text: $name)
+                        .foregroundColor(MahjongTheme.primaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
                 Section("Color") {
                     ColorPicker("Profile Color", selection: $selectedColor, supportsOpacity: false)
+                        .foregroundColor(MahjongTheme.primaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(MahjongTheme.panelDark)
             .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.panelDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(MahjongTheme.primaryText)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -215,6 +246,7 @@ struct EditProfileView: View {
                         dismiss()
                     }
                     .fontWeight(.semibold)
+                    .foregroundStyle(MahjongTheme.primaryText)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
@@ -227,4 +259,3 @@ struct EditProfileView: View {
         }
     }
 }
-

@@ -23,7 +23,7 @@ struct GameOverCard: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.6)
+            Color.black.opacity(MahjongTheme.Opacity.gameOverScrim)
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -40,7 +40,7 @@ struct GameOverCard: View {
                 .padding(.bottom, 16)
 
                 Divider()
-                    .background(Color.white.opacity(0.15))
+                    .background(Color.white.opacity(MahjongTheme.Opacity.cardDivider))
 
                 // Rankings
                 VStack(spacing: 12) {
@@ -75,7 +75,7 @@ struct GameOverCard: View {
                 // Biggest Win
                 if let win = biggestWin {
                     Divider()
-                        .background(Color.white.opacity(0.15))
+                        .background(Color.white.opacity(MahjongTheme.Opacity.cardDivider))
 
                     VStack(spacing: 4) {
                         Label("Biggest Win", systemImage: "star.fill")
@@ -92,7 +92,7 @@ struct GameOverCard: View {
                 }
 
                 Divider()
-                    .background(Color.white.opacity(0.15))
+                    .background(Color.white.opacity(MahjongTheme.Opacity.cardDivider))
 
                 // Done button
                 Button(action: onDone) {
@@ -106,10 +106,10 @@ struct GameOverCard: View {
                 .padding(.vertical, 16)
             }
             .background(MahjongTheme.centerCardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.gameOverCard))
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white.opacity(0.10), lineWidth: 1)
+                RoundedRectangle(cornerRadius: MahjongTheme.Radius.gameOverCard)
+                    .stroke(Color.white.opacity(MahjongTheme.Opacity.overlayStroke), lineWidth: 1)
             )
             .padding(.horizontal, 32)
         }

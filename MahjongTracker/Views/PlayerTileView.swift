@@ -40,17 +40,17 @@ struct PlayerTileView: View {
                     .font(.title3.monospacedDigit().bold())
                     .foregroundColor(player.points < 0 ? .red : MahjongTheme.primaryText)
             }
-            .padding(10)
+            .padding(MahjongTheme.Layout.tilePadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(isDealer ? MahjongTheme.dealerTileBackground : MahjongTheme.tileBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile))
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile)
                     .stroke(
                         isDealer
-                            ? MahjongTheme.dealerBorderColor.opacity(0.7)
-                            : (player.colorHex.isEmpty ? Color.white.opacity(0.08) : Color(hex: player.colorHex).opacity(0.75)),
-                        lineWidth: 1.5
+                            ? MahjongTheme.dealerBorderColor.opacity(MahjongTheme.Opacity.dealerGlow)
+                            : (player.colorHex.isEmpty ? Color.white.opacity(MahjongTheme.Opacity.tileBorder) : Color(hex: player.colorHex).opacity(MahjongTheme.Opacity.customBorder)),
+                        lineWidth: MahjongTheme.Layout.tileBorderWidth
                     )
             )
         }

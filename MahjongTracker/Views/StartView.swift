@@ -16,90 +16,120 @@ struct StartView: View {
     @State private var showSettings = false
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Players") {
+        ZStack {
+            MahjongTheme.feltDeeper.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // ── Header ──────────────────────────────────────────
+                HStack {
+                    Button { onReturnToMenu() } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.title3.weight(.semibold))
+                            .foregroundColor(MahjongTheme.primaryText)
+                    }
+                    Spacer()
+                    Text("New Game")
+                        .font(.title)
+                        .foregroundColor(MahjongTheme.primaryText)
+                    Spacer()
+                    Button { showSettings = true } label: {
+                        Image(systemName: "gearshape")
+                            .font(.title3).bold()
+                            .foregroundColor(MahjongTheme.primaryText)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 16)
+                .padding(.bottom, 20)
+                .background(MahjongTheme.feltDark.ignoresSafeArea(edges: .top))
+
+                // ── Player slots ─────────────────────────────────────
+                VStack(spacing: MahjongTheme.Layout.gridSpacing) {
                     ForEach(0..<4, id: \.self) { i in
-                        Button {
-                            profilePickerSlot = i
-                        } label: {
+                        Button { profilePickerSlot = i } label: {
                             HStack(spacing: 8) {
                                 Text("P\(i + 1)")
-                                    .foregroundColor(.secondary)
-                                    .frame(width: 28, alignment: .leading)
+                                    .foregroundColor(MahjongTheme.secondaryText)
+                                    .frame(width: MahjongTheme.Layout.playerLabelWidth, alignment: .leading)
                                 if !playerColors[i].isEmpty {
                                     Circle()
                                         .fill(Color(hex: playerColors[i]))
-                                        .frame(width: 10, height: 10)
+                                        .frame(width: MahjongTheme.Layout.colorDot, height: MahjongTheme.Layout.colorDot)
                                 }
                                 if !playerEmojis[i].isEmpty {
                                     Text(playerEmojis[i])
                                 }
                                 Text(playerNames[i])
-                                    .foregroundColor(selectedProfileIDs[i] == nil ? .secondary : .primary)
+                                    .font(.system(size: 24))
+                                    .foregroundColor(selectedProfileIDs[i] == nil ? MahjongTheme.secondaryText : MahjongTheme.primaryText)
                                     .fontWeight(selectedProfileIDs[i] == nil ? .regular : .semibold)
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MahjongTheme.secondaryText)
                             }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.horizontal, 14)
+                            .background(MahjongTheme.tileBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: MahjongTheme.Radius.tile)
+                                    .stroke(
+                                        selectedProfileIDs[i] != nil
+                                            ? Color(hex: playerColors[i]).opacity(MahjongTheme.Opacity.customBorder)
+                                            : Color.white.opacity(MahjongTheme.Opacity.tileBorder),
+                                        lineWidth: selectedProfileIDs[i] != nil
+                                            ? MahjongTheme.Layout.profileBorderWidth
+                                            : MahjongTheme.Layout.tileBorderWidth
+                                    )
+                            )
+                        }.buttonStyle(.plain)
                     }
                 }
+                .frame(maxHeight: .infinity)
+                .padding(.horizontal)
+                .padding(.vertical, MahjongTheme.Layout.gridSpacing)
 
-                Section {
-                    Button("Start Game") { startGame() }
+                // ── Start Game ───────────────────────────────────────
+                Button { startGame() } label: {
+                    Text("Start Game")
+                        .font(.title2.weight(.semibold))
                         .frame(maxWidth: .infinity)
-                        .fontWeight(.semibold)
+                        .padding(.vertical, 20)
                 }
+                .buttonStyle(.borderedProminent)
+                .tint(MahjongTheme.tableFelt)
+                .padding(.horizontal)
+                .padding(.bottom, 32)
             }
-            .navigationTitle("New Game")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        onReturnToMenu()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                    }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsSheetView(
+                startingPoints: $startingPoints,
+                multiplier: $multiplier,
+                minFan: $minFan
+            )
+        }
+        .sheet(item: $profilePickerSlot) { slot in
+            let usedIDs = Set(selectedProfileIDs.enumerated()
+                .filter { $0.offset != slot }
+                .compactMap { $0.element })
+            ProfilePickerSheet(
+                slotLabel: "Player \(slot + 1)",
+                usedProfileIDs: usedIDs,
+                onSelect: { profile in
+                    playerNames[slot] = profile.name
+                    playerEmojis[slot] = profile.emoji
+                    playerColors[slot] = profile.colorHex
+                    selectedProfileIDs[slot] = profile.id
+                },
+                onClear: {
+                    playerNames[slot] = "Player \(slot + 1)"
+                    playerEmojis[slot] = ""
+                    playerColors[slot] = ""
+                    selectedProfileIDs[slot] = nil
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                }
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsSheetView(
-                    startingPoints: $startingPoints,
-                    multiplier: $multiplier,
-                    minFan: $minFan
-                )
-            }
-            .sheet(item: $profilePickerSlot) { slot in
-                let usedIDs = Set(selectedProfileIDs.enumerated()
-                    .filter { $0.offset != slot }
-                    .compactMap { $0.element })
-                ProfilePickerSheet(
-                    slotLabel: "Player \(slot + 1)",
-                    usedProfileIDs: usedIDs,
-                    onSelect: { profile in
-                        playerNames[slot] = profile.name
-                        playerEmojis[slot] = profile.emoji
-                        playerColors[slot] = profile.colorHex
-                        selectedProfileIDs[slot] = profile.id
-                    },
-                    onClear: {
-                        playerNames[slot] = "Player \(slot + 1)"
-                        playerEmojis[slot] = ""
-                        playerColors[slot] = ""
-                        selectedProfileIDs[slot] = nil
-                    }
-                )
-            }
+            )
         }
     }
 
@@ -146,33 +176,42 @@ private struct SettingsSheetView: View {
                     Stepper(value: $startingPoints, in: 1000...100000, step: 1000) {
                         HStack {
                             Text("Starting Points")
+                                .foregroundColor(MahjongTheme.primaryText)
                             Spacer()
                             Text("\(startingPoints)")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MahjongTheme.secondaryText)
                         }
                     }
                     Stepper(value: $multiplier, in: 1...1000) {
                         HStack {
                             Text("Multiplier")
+                                .foregroundColor(MahjongTheme.primaryText)
                             Spacer()
                             Text("\(multiplier)×")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MahjongTheme.secondaryText)
                         }
                     }
                     Stepper(value: $minFan, in: 0...5) {
                         HStack {
                             Text("Minimum Fan")
+                                .foregroundColor(MahjongTheme.primaryText)
                             Spacer()
                             Text(minFan == 0 ? "None" : "\(minFan)")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MahjongTheme.secondaryText)
                         }
                     }
                 } footer: {
                     Text("Multiplier scales all payments. At \(multiplier)×, a 3-fan tsumo pays \(ScoringEngine.points(for: 3) * multiplier) per player.")
+                        .foregroundColor(MahjongTheme.secondaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(MahjongTheme.feltDark)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.feltDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }

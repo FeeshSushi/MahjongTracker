@@ -110,16 +110,16 @@ struct HandReferenceView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(group.suitName)
                                 .font(.caption.bold())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MahjongTheme.secondaryText)
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
                                     ForEach(group.tiles, id: \.name) { tile in
                                         VStack(spacing: 2) {
                                             Text(tile.emoji)
-                                                .font(.system(size: 50))
+                                                .font(MahjongTheme.Font.tileEmoji)
                                             Text(tile.name)
                                                 .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(MahjongTheme.secondaryText)
                                         }
                                     }
                                 }
@@ -129,6 +129,7 @@ struct HandReferenceView: View {
                         .padding(.vertical, 4)
                     }
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
 
                 Section("Fan → Points Table") {
                     let pairs = stride(from: 0, to: 13, by: 2).map { i -> ((Int, Int), (Int, Int)?) in
@@ -141,19 +142,21 @@ struct HandReferenceView: View {
                             Text("\(pair.0.0) fan")
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .font(.caption.monospacedDigit())
+                                .foregroundColor(MahjongTheme.primaryText)
                             Text("\(pair.0.1) pts")
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                                 .font(.caption.monospacedDigit())
-                                .foregroundColor(.secondary)
-                            Spacer().frame(width: 24)
+                                .foregroundColor(MahjongTheme.secondaryText)
+                            Spacer().frame(width: MahjongTheme.Layout.tableColumnGap)
                             if let second = pair.1 {
                                 Text("\(second.0) fan")
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .font(.caption.monospacedDigit())
+                                    .foregroundColor(MahjongTheme.primaryText)
                                 Text("\(second.1) pts")
                                     .frame(maxWidth: .infinity, alignment: .trailing)
                                     .font(.caption.monospacedDigit())
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MahjongTheme.secondaryText)
                             } else {
                                 Spacer().frame(maxWidth: .infinity)
                                 Spacer().frame(maxWidth: .infinity)
@@ -164,15 +167,17 @@ struct HandReferenceView: View {
                         Text("13+ fan")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .font(.caption.monospacedDigit())
+                            .foregroundColor(MahjongTheme.primaryText)
                         Text("384 pts (Limit)")
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .font(.caption.monospacedDigit())
-                            .foregroundColor(.purple)
+                            .foregroundColor(MahjongTheme.dealerText)
                         Spacer().frame(width: 24)
                         Spacer().frame(maxWidth: .infinity)
                         Spacer().frame(maxWidth: .infinity)
                     }
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
 
                 ForEach(HandReferenceView.sections) { section in
                     Section(section.title) {
@@ -182,30 +187,31 @@ struct HandReferenceView: View {
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(entry.name)
                                             .font(.subheadline)
+                                            .foregroundColor(MahjongTheme.primaryText)
                                         Text(entry.chineseName)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(MahjongTheme.secondaryText)
                                     }
                                     Spacer()
                                     Text(entry.fan == "Limit" ? "Limit" : "\(entry.fan) fan")
                                         .font(.caption.bold())
-                                        .foregroundColor(entry.fan == "Limit" ? .purple : .primary)
+                                        .foregroundColor(entry.fan == "Limit" ? MahjongTheme.dealerText : MahjongTheme.primaryText)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
                                         .background(
                                             entry.fan == "Limit"
-                                                ? Color.purple.opacity(0.12)
-                                                : Color(.tertiarySystemBackground)
+                                                ? MahjongTheme.dealerText.opacity(0.15)
+                                                : Color.white.opacity(0.12)
                                         )
                                         .clipShape(Capsule())
                                 }
                                 Text(entry.description)
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MahjongTheme.secondaryText)
                             }
                             .padding(.vertical, 2)
                             .listRowBackground(
-                                entry.isHighlighted ? Color.green.opacity(0.08) : nil
+                                entry.isHighlighted ? MahjongTheme.tableFelt.opacity(0.35) : MahjongTheme.tileBackground
                             )
                         }
                     }
@@ -214,14 +220,22 @@ struct HandReferenceView: View {
                 Section {
                     Text("Green background = most important hands to remember. Optional hands are non-traditional and should be agreed upon before the game.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MahjongTheme.secondaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(MahjongTheme.panelDark)
+            .listRowSeparatorTint(Color.white.opacity(0.10))
             .navigationTitle("Hand Reference")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.panelDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
+                        .foregroundStyle(MahjongTheme.primaryText)
                 }
             }
         }

@@ -33,6 +33,7 @@ struct SplashView: View {
                         }
                             .buttonStyle(.borderedProminent)
                             .tint(MahjongTheme.tableFelt)
+                            .glassEffect()
                         Button { onNewGame() }
                         label: {
                             Text("New Game")
@@ -42,6 +43,7 @@ struct SplashView: View {
                         }
                             .buttonStyle(.bordered)
                             .tint(.white)
+                            .glassEffect()
                     }
                     .padding()
                 } else {
@@ -56,11 +58,20 @@ struct SplashView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(MahjongTheme.tableFelt)
+                    .glassEffect()
                 }
-
-                Button("Players") { showPlayers = true }
-                    .font(.subheadline)
-                    .foregroundColor(MahjongTheme.secondaryText)
+                Button {
+                    showPlayers.toggle()
+                } label: {
+                    Text(
+                        "Players"
+                    ).font(.title.weight(.semibold))
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 15)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(MahjongTheme.tableFelt)
+                .glassEffect()
             }
         }
         .sheet(isPresented: $showPlayers) { PlayersView() }

@@ -57,13 +57,15 @@ struct ScoringSheetView: View {
                         Text("Deal-in (Discard)").tag(WinType.dealIn)
                     }
                     .pickerStyle(.segmented)
-                    .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+                    .listRowInsets(MahjongTheme.Layout.formRowInset)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
 
                 Section("Winner") {
                     PlayerSegmentedPicker(players: session.players, selection: $winnerIndex)
-                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+                        .listRowInsets(MahjongTheme.Layout.formRowInset)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
 
                 if winType == .dealIn {
                     Section("Discarder") {
@@ -72,25 +74,29 @@ struct ScoringSheetView: View {
                             selection: $discarderIndex,
                             excludeIndex: winnerIndex
                         )
-                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+                        .listRowInsets(MahjongTheme.Layout.formRowInset)
                     }
+                    .listRowBackground(MahjongTheme.tileBackground)
                 }
 
                 Section("Fan Count") {
                     Toggle("Limit Hand (13+ fan = 384 pts)", isOn: $isLimitHand)
+                        .foregroundColor(MahjongTheme.primaryText)
 
                     if !isLimitHand {
                         Stepper(value: $fan, in: 0...12) {
                             HStack {
                                 Text("\(fan) fan")
                                     .font(.headline)
+                                    .foregroundColor(MahjongTheme.primaryText)
                                 Spacer()
                                 Text("\(ScoringEngine.points(for: fan)) pts")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MahjongTheme.secondaryText)
                             }
                         }
                     }
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
 
                 if !canConfirm {
                     Section {
@@ -100,6 +106,7 @@ struct ScoringSheetView: View {
                         )
                         .foregroundColor(.orange)
                     }
+                    .listRowBackground(MahjongTheme.tileBackground)
                 }
 
                 Section("Payment Preview") {
@@ -109,19 +116,25 @@ struct ScoringSheetView: View {
                         HStack {
                             if !p.emoji.isEmpty { Text(p.emoji) }
                             Text(p.name)
+                                .foregroundColor(MahjongTheme.primaryText)
                             Text(session.seatWind(for: i).character)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MahjongTheme.secondaryText)
                             Spacer()
                             Text(delta == 0 ? "—" : (delta > 0 ? "+\(delta)" : "\(delta)"))
                                 .font(.headline.monospacedDigit())
-                                .foregroundColor(delta > 0 ? .green : delta < 0 ? .red : .secondary)
+                                .foregroundColor(delta > 0 ? .green : delta < 0 ? .red : MahjongTheme.secondaryText)
                         }
                     }
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(MahjongTheme.feltDark)
             .navigationTitle("Score Hand")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.feltDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -199,15 +212,15 @@ struct PlayerSegmentedPicker: View {
                         .foregroundColor(isSelected ? .white : color)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
-                        .background(isSelected ? color : color.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .background(isSelected ? color : color.opacity(MahjongTheme.Opacity.unselectedPlayer))
+                        .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.playerButton))
                     }
                     .buttonStyle(.plain)
                 }
             }
         }
         .padding(3)
-        .background(Color(.systemFill))
-        .clipShape(RoundedRectangle(cornerRadius: 9))
+        .background(Color.white.opacity(0.15))
+        .clipShape(RoundedRectangle(cornerRadius: MahjongTheme.Radius.pickerContainer))
     }
 }

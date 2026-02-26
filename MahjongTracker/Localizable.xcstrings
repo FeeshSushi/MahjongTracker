@@ -1,0 +1,957 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "—" : {
+
+    },
+    "%@ (%lld pts)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$lld pts)"
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@ fan" : {
+
+    },
+    "%@ Round %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ Round %2$lld"
+          }
+        }
+      }
+    },
+    "%@%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@%2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+
+    },
+    "%lld fan" : {
+
+    },
+    "%lld pts" : {
+
+    },
+    "%lld×" : {
+
+    },
+    "+%lld" : {
+
+    },
+    "1st" : {
+      "comment" : "First place label (text form)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1st"
+          }
+        }
+      }
+    },
+    "2nd" : {
+      "comment" : "Second place label (text form)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2nd"
+          }
+        }
+      }
+    },
+    "3rd" : {
+      "comment" : "Third place label (text form)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3rd"
+          }
+        }
+      }
+    },
+    "4th" : {
+      "comment" : "Fourth place label (text form)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4th"
+          }
+        }
+      }
+    },
+    "13+ fan" : {
+      "comment" : "HandReferenceView — limit hand fan count label in fan table",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "13+ fan"
+          }
+        }
+      }
+    },
+    "384 pts (Limit)" : {
+      "comment" : "HandReferenceView — limit hand points label in fan table",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "384 pts (Limit)"
+          }
+        }
+      }
+    },
+    "Adjustment" : {
+      "comment" : "ManualAdjustView — adjustment section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjustment"
+          }
+        }
+      }
+    },
+    "Amount (negative to deduct)" : {
+      "comment" : "ManualAdjustView — text field placeholder",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount (negative to deduct)"
+          }
+        }
+      }
+    },
+    "Apply" : {
+      "comment" : "ManualAdjustView — confirm button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apply"
+          }
+        }
+      }
+    },
+    "Bamboo (Sou 索)" : {
+      "comment" : "HandReferenceView — tile suit name",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bamboo (Sou 索)"
+          }
+        }
+      }
+    },
+    "Biggest Win" : {
+      "comment" : "GameOverCard — section label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biggest Win"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "comment" : "Generic cancel button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "Characters (Man 万)" : {
+      "comment" : "HandReferenceView — tile suit name",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Characters (Man 万)"
+          }
+        }
+      }
+    },
+    "Circles (Pin 筒)" : {
+      "comment" : "HandReferenceView — tile suit name",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Circles (Pin 筒)"
+          }
+        }
+      }
+    },
+    "Clear" : {
+      "comment" : "ProfilePickerSheet — clear player selection button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        }
+      }
+    },
+    "Color" : {
+      "comment" : "Profile form — color section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color"
+          }
+        }
+      }
+    },
+    "Confirm" : {
+      "comment" : "ScoringSheetView — confirm scoring button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "comment" : "SplashView — continue active game button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "Deal-in (Discard)" : {
+      "comment" : "ScoringSheetView — win type picker option",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deal-in (Discard)"
+          }
+        }
+      }
+    },
+    "Dealer" : {
+      "comment" : "PlayerTileView — dealer badge label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dealer"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "comment" : "Context menu — delete profile action",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Discarder" : {
+      "comment" : "ScoringSheetView — discarder picker section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discarder"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "comment" : "Generic done/dismiss button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "Dragons" : {
+      "comment" : "HandReferenceView — tile group name",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dragons"
+          }
+        }
+      }
+    },
+    "e.g. 🐯" : {
+      "comment" : "Profile form — emoji text field placeholder",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. 🐯"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "comment" : "Context menu — edit profile action",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
+    "Edit Profile" : {
+      "comment" : "EditProfileView — navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Profile"
+          }
+        }
+      }
+    },
+    "Emoji" : {
+      "comment" : "Profile form — emoji section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emoji"
+          }
+        }
+      }
+    },
+    "End Game" : {
+      "comment" : "GameBoardView — end game menu item and alert confirm button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End Game"
+          }
+        }
+      }
+    },
+    "End Game?" : {
+      "comment" : "GameBoardView — end game alert title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End Game?"
+          }
+        }
+      }
+    },
+    "Fan → Points Table" : {
+      "comment" : "HandReferenceView — section header for points lookup table",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fan → Points Table"
+          }
+        }
+      }
+    },
+    "Fan Count" : {
+      "comment" : "ScoringSheetView — fan count section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fan Count"
+          }
+        }
+      }
+    },
+    "Game Ended" : {
+      "comment" : "GameOverCard — subtitle when game is manually ended",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Game Ended"
+          }
+        }
+      }
+    },
+    "GAME OVER" : {
+      "comment" : "GameOverCard — header title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GAME OVER"
+          }
+        }
+      }
+    },
+    "Green background = most important hands to remember. Optional hands are non-traditional and should be agreed upon before the game." : {
+      "comment" : "HandReferenceView — footer note",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Green background = most important hands to remember. Optional hands are non-traditional and should be agreed upon before the game."
+          }
+        }
+      }
+    },
+    "Hand Reference" : {
+      "comment" : "HandReferenceView — navigation title and GameBoardView button label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hand Reference"
+          }
+        }
+      }
+    },
+    "HK Style" : {
+      "comment" : "SplashView — app subtitle",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HK Style"
+          }
+        }
+      }
+    },
+    "Limit" : {
+
+    },
+    "Limit Hand (13+ fan = 384 pts)" : {
+      "comment" : "ScoringSheetView — limit hand toggle label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit Hand (13+ fan = 384 pts)"
+          }
+        }
+      }
+    },
+    "MahjongTracker" : {
+      "comment" : "SplashView — app name display",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MahjongTracker"
+          }
+        }
+      }
+    },
+    "Manual Adjust" : {
+      "comment" : "ManualAdjustView — navigation title and GameBoardView menu item",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual Adjust"
+          }
+        }
+      }
+    },
+    "Minimum %lld fan required to win" : {
+
+    },
+    "Minimum Fan" : {
+      "comment" : "SettingsSheetView — minimum fan stepper label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimum Fan"
+          }
+        }
+      }
+    },
+    "More" : {
+      "comment" : "GameBoardView — more actions menu label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More"
+          }
+        }
+      }
+    },
+    "Multiplier" : {
+      "comment" : "SettingsSheetView — multiplier stepper label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Multiplier"
+          }
+        }
+      }
+    },
+    "Multiplier scales all payments. At %lld×, a 3-fan tsumo pays %lld per player." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multiplier scales all payments. At %1$lld×, a 3-fan tsumo pays %2$lld per player."
+          }
+        }
+      }
+    },
+    "Name" : {
+      "comment" : "Profile form — name section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        }
+      }
+    },
+    "New" : {
+      "comment" : "ProfilePickerSheet — add profile card label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New"
+          }
+        }
+      }
+    },
+    "New Game" : {
+      "comment" : "SplashView — new game button; StartView — navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Game"
+          }
+        }
+      }
+    },
+    "New Profile" : {
+      "comment" : "AddProfileView — navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Profile"
+          }
+        }
+      }
+    },
+    "No Games Played" : {
+      "comment" : "PlayersView — empty state title for profile with no game history",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Games Played"
+          }
+        }
+      }
+    },
+    "No History Yet" : {
+      "comment" : "HistoryView — empty state title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No History Yet"
+          }
+        }
+      }
+    },
+    "None" : {
+      "comment" : "SettingsSheetView — minimum fan value when set to 0",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None"
+          }
+        }
+      }
+    },
+    "North Round Complete" : {
+      "comment" : "GameOverCard — subtitle when game ends automatically after North round",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "North Round Complete"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "comment" : "Storage unavailable alert — dismiss button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "P%lld" : {
+
+    },
+    "Payment Preview" : {
+      "comment" : "ScoringSheetView — payment preview section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Payment Preview"
+          }
+        }
+      }
+    },
+    "Play" : {
+      "comment" : "SplashView — start first game button (no active game)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        }
+      }
+    },
+    "Player" : {
+      "comment" : "ManualAdjustView — player section header and picker label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Player"
+          }
+        }
+      }
+    },
+    "Players" : {
+      "comment" : "SplashView — players management button; StartView — players section header; PlayersView — navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Players"
+          }
+        }
+      }
+    },
+    "Press on the winner's player card to enter their points and progress to the next round!" : {
+      "comment" : "GameBoardView — first-time help tooltip",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press on the winner's player card to enter their points and progress to the next round!"
+          }
+        }
+      }
+    },
+    "Preview" : {
+      "comment" : "ManualAdjustView — adjustment preview section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview"
+          }
+        }
+      }
+    },
+    "Profile Color" : {
+      "comment" : "Profile form — color picker label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile Color"
+          }
+        }
+      }
+    },
+    "Reason (optional)" : {
+      "comment" : "ManualAdjustView — reason text field placeholder",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reason (optional)"
+          }
+        }
+      }
+    },
+    "Results will appear here after %@ plays a game." : {
+
+    },
+    "Save" : {
+      "comment" : "Profile form — save button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "Score Hand" : {
+      "comment" : "ScoringSheetView — navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score Hand"
+          }
+        }
+      }
+    },
+    "Score History" : {
+      "comment" : "HistoryView — navigation title and GameBoardView menu item",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score History"
+          }
+        }
+      }
+    },
+    "Scored hands will appear here." : {
+      "comment" : "HistoryView — empty state description",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scored hands will appear here."
+          }
+        }
+      }
+    },
+    "Selecting the Dealer" : {
+      "comment" : "GameBoardView — intro animation splash text during dealer spin",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecting the Dealer"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "comment" : "SettingsSheetView — navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Shuffling Players" : {
+      "comment" : "GameBoardView — intro animation splash text during player shuffle",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shuffling Players"
+          }
+        }
+      }
+    },
+    "Start Game" : {
+      "comment" : "StartView — start game button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Game"
+          }
+        }
+      }
+    },
+    "Starting Points" : {
+      "comment" : "SettingsSheetView — starting points stepper label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting Points"
+          }
+        }
+      }
+    },
+    "Storage Unavailable" : {
+      "comment" : "MahjongTrackerApp — alert title when SwiftData fails to initialize persistent storage",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage Unavailable"
+          }
+        }
+      }
+    },
+    "This will end the current game. All scores are saved in history." : {
+      "comment" : "GameBoardView — end game alert message",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will end the current game. All scores are saved in history."
+          }
+        }
+      }
+    },
+    "Tile Reference" : {
+      "comment" : "HandReferenceView — tile reference section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tile Reference"
+          }
+        }
+      }
+    },
+    "Tsumo (Self-Draw)" : {
+      "comment" : "ScoringSheetView — win type picker option",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tsumo (Self-Draw)"
+          }
+        }
+      }
+    },
+    "Username" : {
+      "comment" : "Profile form — name text field placeholder",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Username"
+          }
+        }
+      }
+    },
+    "Win Type" : {
+      "comment" : "ScoringSheetView — win type section header and picker label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Win Type"
+          }
+        }
+      }
+    },
+    "Winds" : {
+      "comment" : "HandReferenceView — tile group name",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winds"
+          }
+        }
+      }
+    },
+    "Winner" : {
+      "comment" : "ScoringSheetView — winner picker section header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winner"
+          }
+        }
+      }
+    },
+    "Your game data couldn't be saved to disk. Games will work normally this session, but scores won't persist when you close the app." : {
+      "comment" : "MahjongTrackerApp — alert message when SwiftData falls back to in-memory storage",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your game data couldn't be saved to disk. Games will work normally this session, but scores won't persist when you close the app."
+          }
+        }
+      }
+    },
+    "本 %lld" : {
+
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct PlayersView: View {
     @Environment(\.modelContext) private var context
@@ -10,31 +10,44 @@ struct PlayersView: View {
     @State private var showingAddForm = false
     @State private var editingProfile: UserProfile? = nil
 
-    private let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+    private let columns = [
+        GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()),
+    ]
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(profiles) { profile in
-                        ProfileCard(profile: profile, isUsed: false)
-                            .onTapGesture {
-                                selectedProfile = profile
-                            }
-                            .contextMenu {
-                                Button("Edit") { editingProfile = profile }
-                                Button("Delete", role: .destructive) { context.delete(profile) }
-                            }
+            ZStack {
+                MahjongTheme.panelDark.ignoresSafeArea()
+                ScrollView {
+                    LazyVGrid(
+                        columns: columns,
+                        spacing: MahjongTheme.Layout.gridSpacing
+                    ) {
+                        ForEach(profiles) { profile in
+                            ProfileCard(profile: profile, isUsed: false)
+                                .onTapGesture {
+                                    selectedProfile = profile
+                                }
+                                .contextMenu {
+                                    Button("Edit") { editingProfile = profile }
+                                    Button("Delete", role: .destructive) {
+                                        context.delete(profile)
+                                    }
+                                }
+                        }
+                        AddProfileCard { showingAddForm = true }
                     }
-                    AddProfileCard { showingAddForm = true }
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("Players")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.feltDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
+                        .foregroundStyle(MahjongTheme.primaryText)
                 }
             }
             .sheet(item: $selectedProfile) { profile in
@@ -42,7 +55,13 @@ struct PlayersView: View {
             }
             .sheet(isPresented: $showingAddForm) {
                 AddProfileView { emoji, name, colorHex in
-                    context.insert(UserProfile(name: name, emoji: emoji, colorHex: colorHex))
+                    context.insert(
+                        UserProfile(
+                            name: name,
+                            emoji: emoji,
+                            colorHex: colorHex
+                        )
+                    )
                 }
             }
             .sheet(item: $editingProfile) { profile in
@@ -77,7 +96,9 @@ private struct ProfileResultsSheet: View {
                     ContentUnavailableView(
                         "No Games Played",
                         systemImage: "gamecontroller",
-                        description: Text("Results will appear here after \(profile.name) plays a game.")
+                        description: Text(
+                            "Results will appear here after \(profile.name) plays a game."
+                        )
                     )
                 } else {
                     List(sortedResults) { result in
@@ -87,26 +108,45 @@ private struct ProfileResultsSheet: View {
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("\(result.finalPoints) pts")
-                                    .font(.body.monospacedDigit().weight(.semibold))
-                                Text(dateFormatter.string(from: result.datePlayed))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .font(
+                                        .body.monospacedDigit().weight(
+                                            .semibold
+                                        )
+                                    )
+                                    .foregroundColor(MahjongTheme.primaryText)
+                                Text(
+                                    dateFormatter.string(
+                                        from: result.datePlayed
+                                    )
+                                )
+                                .font(.caption)
+                                .foregroundColor(MahjongTheme.secondaryText)
                             }
 
                             Spacer()
 
                             Text(placeName(result.placement))
                                 .font(.caption.bold())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MahjongTheme.secondaryText)
                         }
+                        .listRowBackground(MahjongTheme.tileBackground)
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .listRowSeparatorTint(Color.white.opacity(0.10))
                 }
             }
-            .navigationTitle("\(profile.emoji.isEmpty ? "" : profile.emoji + " ")\(profile.name)")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(MahjongTheme.feltDark)
+            .navigationTitle(
+                "\(profile.emoji.isEmpty ? "" : profile.emoji + " ")\(profile.name)"
+            )
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.feltDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("Done") { dismiss() }.foregroundStyle(MahjongTheme.primaryText)
                 }
             }
         }
@@ -115,10 +155,10 @@ private struct ProfileResultsSheet: View {
 
     private func placeName(_ placement: Int) -> String {
         switch placement {
-        case 1: return "1st"
-        case 2: return "2nd"
-        case 3: return "3rd"
-        default: return "4th"
+        case 1: return String(localized: "1st")
+        case 2: return String(localized: "2nd")
+        case 3: return String(localized: "3rd")
+        default: return String(localized: "4th")
         }
     }
 }

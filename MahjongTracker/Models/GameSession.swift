@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import OSLog
+
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "MahjongTracker", category: "GameSession")
 
 @Model
 final class GameSession {
@@ -33,18 +36,36 @@ final class GameSession {
     }
 
     var players: [PlayerState] {
-        get { (try? JSONDecoder().decode([PlayerState].self, from: playersJSON)) ?? [] }
-        set { playersJSON = (try? JSONEncoder().encode(newValue)) ?? Data() }
+        get {
+            do { return try JSONDecoder().decode([PlayerState].self, from: playersJSON) }
+            catch { logger.error("Failed to decode players: \(error)"); return [] }
+        }
+        set {
+            do { playersJSON = try JSONEncoder().encode(newValue) }
+            catch { logger.error("Failed to encode players: \(error)") }
+        }
     }
 
     var history: [ScoreEntry] {
-        get { (try? JSONDecoder().decode([ScoreEntry].self, from: historyJSON)) ?? [] }
-        set { historyJSON = (try? JSONEncoder().encode(newValue)) ?? Data() }
+        get {
+            do { return try JSONDecoder().decode([ScoreEntry].self, from: historyJSON) }
+            catch { logger.error("Failed to decode history: \(error)"); return [] }
+        }
+        set {
+            do { historyJSON = try JSONEncoder().encode(newValue) }
+            catch { logger.error("Failed to encode history: \(error)") }
+        }
     }
 
     var profileIDs: [UUID?] {
-        get { (try? JSONDecoder().decode([UUID?].self, from: profileIDsJSON)) ?? [] }
-        set { profileIDsJSON = (try? JSONEncoder().encode(newValue)) ?? Data() }
+        get {
+            do { return try JSONDecoder().decode([UUID?].self, from: profileIDsJSON) }
+            catch { logger.error("Failed to decode profileIDs: \(error)"); return [] }
+        }
+        set {
+            do { profileIDsJSON = try JSONEncoder().encode(newValue) }
+            catch { logger.error("Failed to encode profileIDs: \(error)") }
+        }
     }
 
     func seatWind(for playerIndex: Int) -> Wind {

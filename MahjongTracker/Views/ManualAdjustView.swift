@@ -17,31 +17,43 @@ struct ManualAdjustView: View {
                     Picker("Player", selection: $selectedPlayerIndex) {
                         ForEach(session.players.indices, id: \.self) { i in
                             Text("\(session.players[i].name) (\(session.players[i].points) pts)")
+                                .foregroundColor(MahjongTheme.primaryText)
                                 .tag(i)
                         }
                     }
+                    .foregroundColor(MahjongTheme.primaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
 
                 Section("Adjustment") {
                     TextField("Amount (negative to deduct)", text: $amountString)
+                        .foregroundColor(MahjongTheme.primaryText)
                         .keyboardType(.numbersAndPunctuation)
                     TextField("Reason (optional)", text: $reason)
+                        .foregroundColor(MahjongTheme.primaryText)
                 }
+                .listRowBackground(MahjongTheme.tileBackground)
 
                 if amount != 0 {
                     Section("Preview") {
                         HStack {
                             Text(session.players[selectedPlayerIndex].name)
+                                .foregroundColor(MahjongTheme.primaryText)
                             Spacer()
                             Text(amount > 0 ? "+\(amount)" : "\(amount)")
                                 .font(.headline.monospacedDigit())
                                 .foregroundColor(amount > 0 ? .green : .red)
                         }
                     }
+                    .listRowBackground(MahjongTheme.tileBackground)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(MahjongTheme.feltDark)
             .navigationTitle("Manual Adjust")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(MahjongTheme.feltDark, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
