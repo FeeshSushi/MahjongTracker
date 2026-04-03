@@ -5,23 +5,23 @@ struct ScoringSheetView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var winType: WinType
-    @State private var winnerIndex: Int
-    @State private var discarderIndex: Int
+    @State private var winnerSeatIndex: Int
+    @State private var discarderSeatIndex: Int
     @State private var fan: Int = 3
     @State private var isLimitHand = false
 
-    init(session: GameSession, preselectWinnerIndex: Int? = nil) {
+    init(session: GameSession, preselectWinnerSeatIndex: Int? = nil) {
         self.session = session
-        let winner = preselectWinnerIndex ?? 0
-        self._winnerIndex = State(initialValue: winner)
-        self._discarderIndex = State(initialValue: winner == 0 ? 1 : 0)
-        self._winType = State(initialValue: .tsumo)
+        let winner = preselectWinnerSeatIndex ?? 0
+        self._winnerSeatIndex = State(initialValue: winner)
+        self._discarderSeatIndex = State(initialValue: winner == 0 ? 1 : 0)
+        self._winType = State(initialValue: .dealIn)
     }
 
     var effectiveFan: Int { isLimitHand ? ScoringEngine.limitFan : fan }
 
-    var effectiveDiscarderIndex: Int {
-        discarderIndex == winnerIndex ? (winnerIndex + 1) % 4 : discarderIndex
+    var effectiveDiscarderSeatIndex: Int {
+        discarderSeatIndex == winnerSeatIndex ? (winnerSeatIndex + 1) % 4 : discarderSeatIndex
     }
 
     var deltas: [Int] {
@@ -30,22 +30,28 @@ struct ScoringSheetView: View {
             return ScoringEngine.tsumoDeltas(
                 fan: effectiveFan,
                 multiplier: session.multiplier,
-                winnerIndex: winnerIndex
+                winnerSeatIndex: winnerSeatIndex,
+                honba: session.honba
             )
         case .dealIn:
             return ScoringEngine.dealInDeltas(
                 fan: effectiveFan,
                 multiplier: session.multiplier,
-                winnerIndex: winnerIndex,
-                discarderIndex: effectiveDiscarderIndex
+                winnerSeatIndex: winnerSeatIndex,
+                discarderSeatIndex: effectiveDiscarderSeatIndex,
+                honba: session.honba
             )
-        case .manual:
+        case .manual, .foulHand, .drawOut:
             return Array(repeating: 0, count: 4)
         }
     }
 
     var canConfirm: Bool {
         session.minFan == 0 || effectiveFan >= session.minFan
+    }
+
+    private var sortedPlayers: [PlayerRecord] {
+        session.players.sorted { $0.seatIndex < $1.seatIndex }
     }
 
     var body: some View {
@@ -62,7 +68,7 @@ struct ScoringSheetView: View {
                 .listRowBackground(MahjongTheme.tileBackground)
 
                 Section("Winner") {
-                    PlayerSegmentedPicker(players: session.players, selection: $winnerIndex)
+                    PlayerSegmentedPicker(players: sortedPlayers, selection: $winnerSeatIndex)
                         .listRowInsets(MahjongTheme.Layout.formRowInset)
                 }
                 .listRowBackground(MahjongTheme.tileBackground)
@@ -70,9 +76,9 @@ struct ScoringSheetView: View {
                 if winType == .dealIn {
                     Section("Discarder") {
                         PlayerSegmentedPicker(
-                            players: session.players,
-                            selection: $discarderIndex,
-                            excludeIndex: winnerIndex
+                            players: sortedPlayers,
+                            selection: $discarderSeatIndex,
+                            excludeSeatIndex: winnerSeatIndex
                         )
                         .listRowInsets(MahjongTheme.Layout.formRowInset)
                     }
@@ -110,14 +116,18 @@ struct ScoringSheetView: View {
                 }
 
                 Section("Payment Preview") {
-                    ForEach(session.players.indices, id: \.self) { i in
-                        let delta = deltas[i]
-                        let p = session.players[i]
+                    if session.honba > 0 {
+                        Label("Includes \(session.honba)本 bonus", systemImage: "plus.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                    ForEach(sortedPlayers) { p in
+                        let delta = deltas[p.seatIndex]
                         HStack {
                             if !p.emoji.isEmpty { Text(p.emoji) }
                             Text(p.name)
                                 .foregroundColor(MahjongTheme.primaryText)
-                            Text(session.seatWind(for: i).character)
+                            Text(session.seatWind(forSeat: p.seatIndex).character)
                                 .font(.caption)
                                 .foregroundColor(MahjongTheme.secondaryText)
                             Spacer()
@@ -148,9 +158,9 @@ struct ScoringSheetView: View {
                     .fontWeight(.semibold)
                 }
             }
-            .onChange(of: winnerIndex) { _, newWinner in
-                if discarderIndex == newWinner {
-                    discarderIndex = (newWinner + 1) % 4
+            .onChange(of: winnerSeatIndex) { _, newWinner in
+                if discarderSeatIndex == newWinner {
+                    discarderSeatIndex = (newWinner + 1) % 4
                 }
             }
         }
@@ -158,48 +168,50 @@ struct ScoringSheetView: View {
 
     private func confirmScoring() {
         let d = deltas
-        let dealerWon = (winnerIndex == session.dealerSeatIndex)
-        let winner = session.players[winnerIndex]
-        let discarderName: String? = winType == .dealIn ? session.players[effectiveDiscarderIndex].name : nil
+        let dealerWon = (winnerSeatIndex == session.dealerSeatIndex)
+        let winner = session.player(atSeat: winnerSeatIndex)
+        let discarderName: String? = winType == .dealIn
+            ? session.player(atSeat: effectiveDiscarderSeatIndex)?.name
+            : nil
 
-        let entry = ScoreEntry(
+        let record = ScoreRecord(
             prevailingWind: session.prevailingWind,
             dealerSeatIndex: session.dealerSeatIndex,
             honba: session.honba,
             winType: winType,
-            winnerIndex: winnerIndex,
-            discarderIndex: winType == .dealIn ? effectiveDiscarderIndex : nil,
+            winnerSeatIndex: winnerSeatIndex,
+            discarderSeatIndex: winType == .dealIn ? effectiveDiscarderSeatIndex : nil,
             fan: effectiveFan,
             deltas: d,
             summary: ScoringEngine.summaryString(
-                winnerName: winner.name,
+                winnerName: winner?.name ?? "Unknown",
                 winType: winType,
                 fan: effectiveFan,
                 discarderName: discarderName,
-                winnerDelta: d[winnerIndex]
+                winnerDelta: d[winnerSeatIndex],
+                honba: session.honba
             )
         )
-        session.applyScore(deltas: d, entry: entry, dealerWon: dealerWon)
+        session.applyScore(deltas: d, record: record, dealerWon: dealerWon)
     }
 }
 
 // MARK: - Player Segmented Picker
 
 struct PlayerSegmentedPicker: View {
-    let players: [PlayerState]
-    @Binding var selection: Int
-    var excludeIndex: Int? = nil
+    let players: [PlayerRecord]  // expected already sorted by seatIndex
+    @Binding var selection: Int  // seatIndex
+    var excludeSeatIndex: Int? = nil
 
     var body: some View {
         HStack(spacing: 4) {
-            ForEach(players.indices, id: \.self) { i in
-                if i != excludeIndex {
-                    let player = players[i]
+            ForEach(players) { player in
+                if player.seatIndex != excludeSeatIndex {
                     let color = player.colorHex.isEmpty ? Color.blue : Color(hex: player.colorHex)
-                    let isSelected = selection == i
+                    let isSelected = selection == player.seatIndex
 
                     Button {
-                        selection = i
+                        selection = player.seatIndex
                     } label: {
                         VStack(spacing: 1) {
                             if !player.emoji.isEmpty {

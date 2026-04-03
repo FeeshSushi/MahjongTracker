@@ -77,7 +77,7 @@ private struct ProfileResultsSheet: View {
     let profile: UserProfile
     @Environment(\.dismiss) private var dismiss
 
-    private var sortedResults: [GameResult] {
+    private var sortedResults: [GameResultRecord] {
         profile.gameResults.sorted { $0.datePlayed > $1.datePlayed }
     }
 

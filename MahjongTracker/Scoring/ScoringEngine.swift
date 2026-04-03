@@ -31,20 +31,34 @@ enum ScoringEngine {
         return fanPointsTable[fan]
     }
 
-    // Tsumo: all 3 losers each pay points(fan) × multiplier to winner.
-    static func tsumoDeltas(fan: Int, multiplier: Int, winnerIndex: Int) -> [Int] {
-        let payment = points(for: fan) * multiplier
-        var deltas = Array(repeating: -payment, count: 4)
-        deltas[winnerIndex] = payment * 3
+    // Tsumo: all 3 losers each pay (points(fan) × multiplier + honba × 100) to winner.
+    // Honba rule: each honba adds 100 pts per payer (300 total extra for winner).
+    static func tsumoDeltas(fan: Int, multiplier: Int, winnerSeatIndex: Int, honba: Int) -> [Int] {
+        let base = points(for: fan) * multiplier
+        let bonus = honba * 100
+        var deltas = Array(repeating: -(base + bonus), count: 4)
+        deltas[winnerSeatIndex] = (base + bonus) * 3
         return deltas
     }
 
-    // Deal-in (全铳制): discarder alone pays 2 × points(fan) × multiplier.
-    static func dealInDeltas(fan: Int, multiplier: Int, winnerIndex: Int, discarderIndex: Int) -> [Int] {
-        let payment = points(for: fan) * multiplier * 2
+    // Deal-in (全铳制): discarder alone pays 2 × points(fan) × multiplier + honba × 100.
+    // Honba rule: discarder pays 100 extra per honba; winner receives same.
+    static func dealInDeltas(
+        fan: Int, multiplier: Int, winnerSeatIndex: Int, discarderSeatIndex: Int, honba: Int
+    ) -> [Int] {
+        let base = points(for: fan) * multiplier * 2
+        let bonus = honba * 100
         var deltas = Array(repeating: 0, count: 4)
-        deltas[discarderIndex] = -payment
-        deltas[winnerIndex] = payment
+        deltas[discarderSeatIndex] = -(base + bonus)
+        deltas[winnerSeatIndex] = base + bonus
+        return deltas
+    }
+
+    // False win: offender pays flat penalty to each of the other 3 players.
+    // Not scaled by multiplier — penalty is always the flat configured amount.
+    static func foulHandDeltas(penalty: Int, offenderSeatIndex: Int) -> [Int] {
+        var deltas = Array(repeating: penalty, count: 4)
+        deltas[offenderSeatIndex] = -(penalty * 3)
         return deltas
     }
 
@@ -52,21 +66,27 @@ enum ScoringEngine {
         fan: Int,
         multiplier: Int,
         winType: WinType,
-        winnerIndex: Int,
-        discarderIndex: Int?,
-        players: [PlayerState]
+        winnerSeatIndex: Int,
+        discarderSeatIndex: Int?,
+        players: [PlayerRecord],
+        honba: Int
     ) -> [(name: String, delta: Int)] {
         let deltas: [Int]
         switch winType {
         case .tsumo:
-            deltas = tsumoDeltas(fan: fan, multiplier: multiplier, winnerIndex: winnerIndex)
+            deltas = tsumoDeltas(fan: fan, multiplier: multiplier,
+                                 winnerSeatIndex: winnerSeatIndex, honba: honba)
         case .dealIn:
-            guard let di = discarderIndex else { return [] }
-            deltas = dealInDeltas(fan: fan, multiplier: multiplier, winnerIndex: winnerIndex, discarderIndex: di)
-        case .manual:
+            guard let di = discarderSeatIndex else { return [] }
+            deltas = dealInDeltas(fan: fan, multiplier: multiplier,
+                                  winnerSeatIndex: winnerSeatIndex,
+                                  discarderSeatIndex: di, honba: honba)
+        case .manual, .foulHand, .drawOut:
             return []
         }
-        return players.enumerated().map { idx, p in (name: p.name, delta: deltas[idx]) }
+        return players
+            .sorted { $0.seatIndex < $1.seatIndex }
+            .map { p in (name: p.name, delta: deltas[p.seatIndex]) }
     }
 
     static func summaryString(
@@ -74,18 +94,25 @@ enum ScoringEngine {
         winType: WinType,
         fan: Int,
         discarderName: String?,
-        winnerDelta: Int
+        winnerDelta: Int,
+        honba: Int = 0
     ) -> String {
         let sign = winnerDelta >= 0 ? "+" : ""
         let fanStr = fan >= limitFan ? "Limit" : "\(fan) fan"
+        let honbaSuffix = honba > 0 ? " +\(honba)本" : ""
         switch winType {
         case .tsumo:
-            return "\(winnerName) tsumo \(fanStr) (\(sign)\(winnerDelta))"
+            return "\(winnerName) tsumo \(fanStr)\(honbaSuffix) (\(sign)\(winnerDelta))"
         case .dealIn:
             let from = discarderName.map { " off \($0)" } ?? ""
-            return "\(winnerName) wins \(fanStr)\(from) (\(sign)\(winnerDelta))"
+            return "\(winnerName) wins \(fanStr)\(from)\(honbaSuffix) (\(sign)\(winnerDelta))"
         case .manual:
             return "Manual adjustment"
+        case .foulHand:
+            let penalty = abs(winnerDelta) / 3
+            return "\(winnerName) false win (-\(penalty * 3))"
+        case .drawOut:
+            return "Draw out — no winner"
         }
     }
 }

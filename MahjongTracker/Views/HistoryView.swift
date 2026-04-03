@@ -4,8 +4,8 @@ struct HistoryView: View {
     @Bindable var session: GameSession
     @Environment(\.dismiss) private var dismiss
 
-    var reversedHistory: [ScoreEntry] {
-        session.history.reversed()
+    var sortedHistory: [ScoreRecord] {
+        session.history.sorted { $0.timestamp > $1.timestamp }
     }
 
     var body: some View {
@@ -18,7 +18,7 @@ struct HistoryView: View {
                         description: Text("Scored hands will appear here.")
                     )
                 } else {
-                    List(reversedHistory) { entry in
+                    List(sortedHistory) { entry in
                         HistoryRowView(entry: entry, players: session.players)
                             .listRowBackground(MahjongTheme.tileBackground)
                     }

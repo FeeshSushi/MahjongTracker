@@ -16,6 +16,7 @@ final class GameSession {
     var startingPoints: Int = 10000
     var multiplier: Int = 1
     var minFan: Int = 3
+    var foulPenalty: Int = 384
 
     // Game state
     var prevailingWindRaw: Int = 0
@@ -23,10 +24,12 @@ final class GameSession {
     var dealerRotationCount: Int = 0  // how many times dealer has rotated in current prevailing wind
     var honba: Int = 0
 
-    // JSON-encoded data blobs
-    var playersJSON: Data = Data()
-    var historyJSON: Data = Data()
-    var profileIDsJSON: Data = Data()
+    // Profile links: "UUID1,UUID2,nil,UUID4" — always 4 comma-separated tokens
+    var profileIDsString: String = "nil,nil,nil,nil"
+
+    // Relationships
+    @Relationship(deleteRule: .cascade) var players: [PlayerRecord] = []
+    @Relationship(deleteRule: .cascade) var history: [ScoreRecord] = []
 
     // MARK: - Computed properties
 
@@ -35,89 +38,88 @@ final class GameSession {
         set { prevailingWindRaw = newValue.rawValue }
     }
 
-    var players: [PlayerState] {
-        get {
-            do { return try JSONDecoder().decode([PlayerState].self, from: playersJSON) }
-            catch { logger.error("Failed to decode players: \(error)"); return [] }
-        }
-        set {
-            do { playersJSON = try JSONEncoder().encode(newValue) }
-            catch { logger.error("Failed to encode players: \(error)") }
-        }
-    }
-
-    var history: [ScoreEntry] {
-        get {
-            do { return try JSONDecoder().decode([ScoreEntry].self, from: historyJSON) }
-            catch { logger.error("Failed to decode history: \(error)"); return [] }
-        }
-        set {
-            do { historyJSON = try JSONEncoder().encode(newValue) }
-            catch { logger.error("Failed to encode history: \(error)") }
-        }
-    }
-
     var profileIDs: [UUID?] {
         get {
-            do { return try JSONDecoder().decode([UUID?].self, from: profileIDsJSON) }
-            catch { logger.error("Failed to decode profileIDs: \(error)"); return [] }
+            profileIDsString
+                .split(separator: ",", omittingEmptySubsequences: false)
+                .map { $0 == "nil" ? nil : UUID(uuidString: String($0)) }
         }
         set {
-            do { profileIDsJSON = try JSONEncoder().encode(newValue) }
-            catch { logger.error("Failed to encode profileIDs: \(error)") }
+            profileIDsString = newValue.map { $0?.uuidString ?? "nil" }.joined(separator: ",")
         }
-    }
-
-    func seatWind(for playerIndex: Int) -> Wind {
-        let offset = (playerIndex - dealerSeatIndex + 4) % 4
-        return Wind(rawValue: offset) ?? .east
     }
 
     var roundLabel: String {
         "\(prevailingWind.character)\(dealerRotationCount + 1)"
     }
 
+    // MARK: - Player helpers
+
+    func player(atSeat seatIndex: Int) -> PlayerRecord? {
+        players.first { $0.seatIndex == seatIndex }
+    }
+
+    func seatWind(forSeat seatIndex: Int) -> Wind {
+        let offset = (seatIndex - dealerSeatIndex + 4) % 4
+        return Wind(rawValue: offset) ?? .east
+    }
+
     // MARK: - Init
 
-    init(playerNames: [String], playerEmojis: [String] = [], playerColors: [String] = [], profileIDs: [UUID?] = [], startingPoints: Int, multiplier: Int, minFan: Int) {
+    init(
+        playerNames: [String],
+        playerEmojis: [String] = [],
+        playerColors: [String] = [],
+        profileIDs: [UUID?] = [],
+        startingPoints: Int,
+        multiplier: Int,
+        minFan: Int,
+        foulPenalty: Int = 384
+    ) {
         self.startingPoints = startingPoints
         self.multiplier = multiplier
         self.minFan = minFan
+        self.foulPenalty = foulPenalty
         self.players = playerNames.indices.map { i in
-            PlayerState(
+            PlayerRecord(
                 name: playerNames[i],
                 emoji: i < playerEmojis.count ? playerEmojis[i] : "",
                 colorHex: i < playerColors.count ? playerColors[i] : "",
-                points: startingPoints
+                points: startingPoints,
+                seatIndex: i
             )
         }
-        self.history = []
-        self.profileIDs = profileIDs
+        self.profileIDsString = profileIDs.map { $0?.uuidString ?? "nil" }.joined(separator: ",")
     }
 
     // MARK: - Game Actions
 
-    func applyScore(deltas: [Int], entry: ScoreEntry, dealerWon: Bool) {
-        var updated = players
-        for i in updated.indices { updated[i].points += deltas[i] }
-        players = updated
-
-        var hist = history
-        hist.append(entry)
-        history = hist
-
+    func applyScore(deltas: [Int], record: ScoreRecord, dealerWon: Bool) {
+        for player in players {
+            player.points += deltas[player.seatIndex]
+        }
+        history.append(record)
         advanceRound(dealerWon: dealerWon)
     }
 
-    func applyManualAdjust(deltas: [Int], entry: ScoreEntry) {
-        var updated = players
-        for i in updated.indices { updated[i].points += deltas[i] }
-        players = updated
+    func applyManualAdjust(deltas: [Int], record: ScoreRecord) {
+        for player in players {
+            player.points += deltas[player.seatIndex]
+        }
+        history.append(record)
+    }
 
-        var hist = history
-        hist.append(entry)
-        history = hist
-        // No round advancement for manual adjustments
+    func applyFoulHand(deltas: [Int], record: ScoreRecord) {
+        for player in players {
+            player.points += deltas[player.seatIndex]
+        }
+        history.append(record)
+        advanceRound(dealerWon: true)  // dealer stays, honba increments
+    }
+
+    func applyDrawOut(record: ScoreRecord) {
+        history.append(record)         // no point changes
+        advanceRound(dealerWon: true)  // dealer stays, honba increments
     }
 
     private func advanceRound(dealerWon: Bool) {

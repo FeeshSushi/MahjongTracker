@@ -8,22 +8,33 @@ struct MahjongTrackerApp: App {
     @State private var showStorageAlert = false
 
     init() {
-        let schema = Schema([GameSession.self, UserProfile.self])
+        let schema = Schema([
+            GameSession.self,
+            UserProfile.self,
+            PlayerRecord.self,
+            ScoreRecord.self,
+            GameResultRecord.self
+        ])
+        var unavailable = false
         do {
             sharedModelContainer = try ModelContainer(
                 for: schema,
                 configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)]
             )
-            storageUnavailable = false
         } catch {
             // Persistent storage failed — fall back to in-memory so the app stays usable.
-            // The .onAppear below will surface an alert to the user.
-            sharedModelContainer = try! ModelContainer(
-                for: schema,
-                configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]
-            )
-            storageUnavailable = true
+            do {
+                sharedModelContainer = try ModelContainer(
+                    for: schema,
+                    configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]
+                )
+                unavailable = true
+            } catch {
+                fatalError("ModelContainer creation failed entirely: \(error)")
+            }
         }
+        storageUnavailable = unavailable
+        performWipeIfNeeded(container: sharedModelContainer)
     }
 
     var body: some Scene {
@@ -39,6 +50,17 @@ struct MahjongTrackerApp: App {
                 }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    private func performWipeIfNeeded(container: ModelContainer) {
+        let stored = UserDefaults.standard.integer(forKey: AppStorageKeys.schemaVersion)
+        guard stored < currentSchemaVersion else { return }
+        let ctx = container.mainContext
+        // Cascade delete rules propagate to children; delete parents only.
+        try? ctx.delete(model: GameSession.self)
+        try? ctx.delete(model: UserProfile.self)
+        try? ctx.save()
+        UserDefaults.standard.set(currentSchemaVersion, forKey: AppStorageKeys.schemaVersion)
     }
 }
 

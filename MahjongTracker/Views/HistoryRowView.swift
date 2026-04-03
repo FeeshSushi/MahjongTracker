@@ -1,10 +1,14 @@
 import SwiftUI
 
 struct HistoryRowView: View {
-    let entry: ScoreEntry
-    let players: [PlayerState]
+    let entry: ScoreRecord
+    let players: [PlayerRecord]
 
     @State private var expanded = false
+
+    private var sortedPlayers: [PlayerRecord] {
+        players.sorted { $0.seatIndex < $1.seatIndex }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -35,18 +39,16 @@ struct HistoryRowView: View {
             if expanded {
                 Divider()
                     .overlay(Color.white.opacity(0.15))
-                ForEach(Array(players.enumerated()), id: \.offset) { i, player in
-                    if i < entry.deltas.count {
-                        let delta = entry.deltas[i]
-                        HStack {
-                            Text(player.name)
-                                .font(.caption)
-                                .foregroundColor(MahjongTheme.primaryText)
-                            Spacer()
-                            Text(delta == 0 ? "—" : (delta > 0 ? "+\(delta)" : "\(delta)"))
-                                .font(.caption.monospacedDigit())
-                                .foregroundColor(delta > 0 ? .green : delta < 0 ? .red : MahjongTheme.secondaryText)
-                        }
+                ForEach(sortedPlayers) { player in
+                    let delta = entry.deltas[player.seatIndex]
+                    HStack {
+                        Text(player.name)
+                            .font(.caption)
+                            .foregroundColor(MahjongTheme.primaryText)
+                        Spacer()
+                        Text(delta == 0 ? "—" : (delta > 0 ? "+\(delta)" : "\(delta)"))
+                            .font(.caption.monospacedDigit())
+                            .foregroundColor(delta > 0 ? .green : delta < 0 ? .red : MahjongTheme.secondaryText)
                     }
                 }
             }

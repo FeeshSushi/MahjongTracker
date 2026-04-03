@@ -13,6 +13,7 @@ struct StartView: View {
     @State private var startingPoints = 10000
     @State private var multiplier = 1
     @State private var minFan = 3
+    @State private var foulPenalty = 384
     @State private var showSettings = false
 
     var body: some View {
@@ -107,7 +108,8 @@ struct StartView: View {
             SettingsSheetView(
                 startingPoints: $startingPoints,
                 multiplier: $multiplier,
-                minFan: $minFan
+                minFan: $minFan,
+                foulPenalty: $foulPenalty
             )
         }
         .sheet(item: $profilePickerSlot) { slot in
@@ -157,7 +159,8 @@ struct StartView: View {
             profileIDs: selectedProfileIDs,
             startingPoints: startingPoints,
             multiplier: multiplier,
-            minFan: minFan
+            minFan: minFan,
+            foulPenalty: foulPenalty
         )
         context.insert(session)
     }
@@ -167,6 +170,7 @@ private struct SettingsSheetView: View {
     @Binding var startingPoints: Int
     @Binding var multiplier: Int
     @Binding var minFan: Int
+    @Binding var foulPenalty: Int
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -200,8 +204,17 @@ private struct SettingsSheetView: View {
                                 .foregroundColor(MahjongTheme.secondaryText)
                         }
                     }
+                    Stepper(value: $foulPenalty, in: 100...10000, step: 100) {
+                        HStack {
+                            Text("False Win Penalty")
+                                .foregroundColor(MahjongTheme.primaryText)
+                            Spacer()
+                            Text("\(foulPenalty) pts")
+                                .foregroundColor(MahjongTheme.secondaryText)
+                        }
+                    }
                 } footer: {
-                    Text("Multiplier scales all payments. At \(multiplier)×, a 3-fan tsumo pays \(ScoringEngine.points(for: 3) * multiplier) per player.")
+                    Text("Multiplier scales all payments. At \(multiplier)×, a 3-fan tsumo pays \(ScoringEngine.points(for: 3) * multiplier) per player. False win penalty is flat — not scaled by multiplier.")
                         .foregroundColor(MahjongTheme.secondaryText)
                 }
                 .listRowBackground(MahjongTheme.tileBackground)

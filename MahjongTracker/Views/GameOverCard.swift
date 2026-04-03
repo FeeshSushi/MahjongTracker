@@ -5,13 +5,11 @@ struct GameOverCard: View {
     let isAutoEnd: Bool
     let onDone: () -> Void
 
-    private var rankedPlayers: [(index: Int, player: PlayerState)] {
-        session.players.enumerated()
-            .map { (index: $0.offset, player: $0.element) }
-            .sorted { $0.player.points > $1.player.points }
+    private var rankedPlayers: [PlayerRecord] {
+        session.players.sorted { $0.points > $1.points }
     }
 
-    private var biggestWin: ScoreEntry? {
+    private var biggestWin: ScoreRecord? {
         session.history
             .filter { $0.winType != .manual }
             .max { a, b in
@@ -44,12 +42,12 @@ struct GameOverCard: View {
 
                 // Rankings
                 VStack(spacing: 12) {
-                    ForEach(Array(rankedPlayers.enumerated()), id: \.element.index) { place, entry in
+                    ForEach(Array(rankedPlayers.enumerated()), id: \.element.id) { place, player in
                         HStack(spacing: 10) {
                             Text(placeLabels[place])
                                 .font(.title3)
 
-                            Text("\(entry.player.emoji) \(entry.player.name)")
+                            Text("\(player.emoji) \(player.name)")
                                 .font(.body.weight(.semibold))
                                 .foregroundColor(MahjongTheme.primaryText)
                                 .lineLimit(1)
@@ -57,11 +55,11 @@ struct GameOverCard: View {
                             Spacer()
 
                             VStack(alignment: .trailing, spacing: 2) {
-                                Text("\(entry.player.points)")
+                                Text("\(player.points)")
                                     .font(.body.monospacedDigit())
                                     .foregroundColor(MahjongTheme.primaryText)
 
-                                let delta = entry.player.points - session.startingPoints
+                                let delta = player.points - session.startingPoints
                                 Text(delta >= 0 ? "+\(delta)" : "\(delta)")
                                     .font(.caption.monospacedDigit())
                                     .foregroundColor(delta >= 0 ? .green : .red)

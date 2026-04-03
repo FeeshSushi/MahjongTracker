@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PlayerTileView: View {
-    let player: PlayerState
+    let player: PlayerRecord
     let seatWind: Wind
     let isDealer: Bool
     var onTap: (() -> Void)? = nil

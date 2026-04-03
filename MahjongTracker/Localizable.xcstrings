@@ -56,6 +56,9 @@
     "%lld pts" : {
 
     },
+    "%lld pts per player" : {
+
+    },
     "%lld×" : {
 
     },
@@ -330,6 +333,12 @@
         }
       }
     },
+    "Draw Out" : {
+
+    },
+    "Draw Out?" : {
+
+    },
     "e.g. 🐯" : {
       "comment" : "Profile form — emoji text field placeholder",
       "localizations" : {
@@ -396,6 +405,12 @@
         }
       }
     },
+    "False Win" : {
+
+    },
+    "False Win Penalty" : {
+
+    },
     "Fan → Points Table" : {
       "comment" : "HandReferenceView — section header for points lookup table",
       "localizations" : {
@@ -417,6 +432,9 @@
           }
         }
       }
+    },
+    "Flat penalty" : {
+
     },
     "Game Ended" : {
       "comment" : "GameOverCard — subtitle when game is manually ended",
@@ -472,6 +490,9 @@
           }
         }
       }
+    },
+    "Includes %lld本 bonus" : {
+
     },
     "Limit" : {
 
@@ -545,12 +566,12 @@
         }
       }
     },
-    "Multiplier scales all payments. At %lld×, a 3-fan tsumo pays %lld per player." : {
+    "Multiplier scales all payments. At %lld×, a 3-fan tsumo pays %lld per player. False win penalty is flat — not scaled by multiplier." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Multiplier scales all payments. At %1$lld×, a 3-fan tsumo pays %2$lld per player."
+            "value" : "Multiplier scales all payments. At %1$lld×, a 3-fan tsumo pays %2$lld per player. False win penalty is flat — not scaled by multiplier."
           }
         }
       }
@@ -621,6 +642,9 @@
         }
       }
     },
+    "No winner this round. Dealer stays and honba increments." : {
+
+    },
     "None" : {
       "comment" : "SettingsSheetView — minimum fan value when set to 0",
       "localizations" : {
@@ -642,6 +666,9 @@
           }
         }
       }
+    },
+    "Offender" : {
+
     },
     "OK" : {
       "comment" : "Storage unavailable alert — dismiss button",
@@ -667,6 +694,9 @@
           }
         }
       }
+    },
+    "Penalty Preview" : {
+
     },
     "Play" : {
       "comment" : "SplashView — start first game button (no active game)",
